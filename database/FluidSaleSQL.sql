@@ -1,0 +1,116 @@
+DROP DATABASE IF EXISTS FluidSale;
+CREATE DATABASE IF NOT EXISTS FluidSale;
+USE FluidSale;
+
+/*CREATE STAFF/DRAWER TABLES*/
+DROP TABLE IF EXISTS StaffRole;
+CREATE TABLE IF NOT EXISTS StaffRole
+(
+srCode INT not null,
+srDesc VARCHAR(45) not null,
+PRIMARY KEY (srCode)
+);
+
+DROP TABLE IF EXISTS Staff;
+CREATE TABLE IF NOT EXISTS Staff
+(
+sID INT not null,
+srCode INT not null,
+sFN VARCHAR(45) not null,
+sLN VARCHAR(45) not null,
+sPass VARCHAR(225) not null,
+PRIMARY KEY (sID),
+FOREIGN KEY (srCode) REFERENCES StaffRole(srCode)
+);
+
+DROP TABLE IF EXISTS Drawer;
+CREATE TABLE IF NOT EXISTS Drawer
+(
+dID INT not null,
+sID INT not null,
+dStart DECIMAL(5,2) not null,
+dFinish DECIMAL(6,2) not null,
+dCount DECIMAL(6,2) not null,
+PRIMARY KEY (dID),
+FOREIGN KEY (sID) REFERENCES Staff(sID)
+);
+
+/*CREATE REWARDS/MEMBER TABLES*/
+DROP TABLE IF EXISTS Rewards;
+CREATE TABLE IF NOT EXISTS Rewards
+(
+rID INT not null,
+rDesc VARCHAR(45) not null,
+PRIMARY KEY (rID)
+);
+
+DROP TABLE IF EXISTS Member;
+CREATE TABLE IF NOT EXISTS Member
+(
+mPhone VARCHAR(10) not null,
+mFN VARCHAR(45) not null,
+mLN VARCHAR(45) not null,
+visits int,
+PRIMARY KEY (mPhone)
+);
+
+DROP TABLE IF EXISTS RewardsMember;
+CREATE TABLE IF NOT EXISTS RewardsMember
+(
+rID INT NOT NULL,
+mPhone VARCHAR(10) NOT NULL,
+CONSTRAINT PRIMARY KEY (rID,mPhone),
+FOREIGN KEY (rID) REFERENCES Rewards(rID),
+FOREIGN KEY (mPhone) REFERENCES Member(mPhone)
+);
+
+/*CREATE SALE*/
+DROP TABLE IF EXISTS Sale;
+CREATE TABLE IF NOT EXISTS Sale
+(
+saleID INT not null,
+dID INT not null,
+mPhone VARCHAR(10),
+custFN VARCHAR (45),
+mealCost DECIMAL(6,2) not null,
+paymentMethod VARCHAR(45),
+timeS TIMESTAMP default  current_timestamp,
+PRIMARY KEY (saleID),
+FOREIGN KEY (dID) REFERENCES Drawer(dID),
+FOREIGN KEY (mPhone) REFERENCES Member(mPhone)
+);
+
+/*CREATE MENU TABLE*/
+DROP TABLE IF EXISTS Menu;
+CREATE TABLE IF NOT EXISTS Menu
+(
+menuID INT not null,
+menuName VARCHAR(45) not null,
+menuStart DATE NOT NULL,
+menuEnd DATE NOT NULL,
+PRIMARY KEY (menuID)
+);
+
+DROP TABLE IF EXISTS MenuItem;
+CREATE TABLE IF NOT EXISTS MenuItem
+(
+miID INT not null,
+menuID INT not null,
+miName VARCHAR(45) not null,
+miDesc VARCHAR (200) not null,
+miPrice DECIMAL(4,2) not null,
+PRIMARY KEY (miID),
+FOREIGN KEY (menuID) REFERENCES Menu(menuID)
+);
+
+/*CREATE PLATE*/
+DROP TABLE IF EXISTS MenuTransPlate;
+CREATE TABLE IF NOT EXISTS MenuTransPlate
+(
+miID INT NOT NULL,
+saleID INT NOT NULL,
+allergy VARCHAR(45),
+CONSTRAINT PRIMARY KEY (miID,saleID),
+FOREIGN KEY (miID) REFERENCES MenuItem(miID),
+FOREIGN KEY (saleID) REFERENCES Sale(saleID)
+);
